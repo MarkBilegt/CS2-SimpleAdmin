@@ -52,7 +52,7 @@ css_hidecomms
 Opens the main admin menu interface.
 
 ```bash
-css_admin
+css_adminmenu
 ```
 
 **Permission:** `@css/generic`
@@ -494,7 +494,9 @@ css_rcon sv_cheats 1
 "DisableDangerousCommands": true
 ```
 
-When enabled, prevents execution of dangerous commands via css_rcon.
+When enabled, command prefixes listed in `BlockedRconCommands` are rejected,
+including semicolon-separated command chains. This is defense in depth, not a
+replacement for tightly restricting the `@css/rcon` permission.
 
 ---
 
@@ -503,10 +505,7 @@ When enabled, prevents execution of dangerous commands via css_rcon.
 Restart the current game/round.
 
 ```bash
-css_rr
-css_rg
-css_restart
-css_restartgame
+css_sarestart
 ```
 
 **Permission:** `@css/generic`

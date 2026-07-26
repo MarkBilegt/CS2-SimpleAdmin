@@ -63,6 +63,10 @@ General plugin settings:
   "BanType": 1,
   "TimeMode": 1,
   "DisableDangerousCommands": true,
+  "BlockedRconCommands": [
+    "alias", "crash", "css_plugins", "exec", "exit", "quit",
+    "rcon_password", "restart", "_restart"
+  ],
   "MaxBanDuration": 10080,
   "MaxMuteDuration": 10080,
   "ExpireOldIpBans": 0,
@@ -87,6 +91,7 @@ General plugin settings:
 | `BanType` | Ban type (1=SteamID, 2=IP, 3=Both) | 1 |
 | `TimeMode` | Time display mode | 1 |
 | `DisableDangerousCommands` | Disable potentially dangerous commands | true |
+| `BlockedRconCommands` | RCON prefixes blocked when dangerous-command protection is enabled | see generated config |
 | `MaxBanDuration` | Maximum ban duration in minutes (0=unlimited) | 10080 |
 | `MaxMuteDuration` | Maximum mute duration in minutes (0=unlimited) | 10080 |
 | `ExpireOldIpBans` | Auto-expire IP bans after X days (0=disabled) | 0 |
@@ -102,12 +107,14 @@ General plugin settings:
 ### Metrics and Updates
 
 ```json
-"EnableMetrics": true,
-"EnableUpdateCheck": true
+"EnableMetrics": false,
+"EnableUpdateCheck": true,
+"ExposeDatabaseConnectionStringToModules": false
 ```
 
-- `EnableMetrics` - Send anonymous usage statistics
+- `EnableMetrics` - Send the server address and hostname to the project metrics endpoint; disabled by default
 - `EnableUpdateCheck` - Check for plugin updates on load
+- `ExposeDatabaseConnectionStringToModules` - Allow modules to retrieve database credentials; disabled by default
 
 ### Timezone
 
@@ -289,6 +296,10 @@ Configure menu appearance and options:
     { "name": "Show IP", "flag": "@css/showip" },
     { "name": "Cvar", "flag": "@css/cvar" },
     { "name": "Rcon", "flag": "@css/rcon" },
+    { "name": "MatchZy Config", "flag": "@css/config" },
+    { "name": "MatchZy Map", "flag": "@css/map" },
+    { "name": "MatchZy Practice", "flag": "@custom/prac" },
+    { "name": "Reserved Slot", "flag": "@css/reservation" },
     { "name": "Root (all flags)", "flag": "@css/root" }
   ]
 }

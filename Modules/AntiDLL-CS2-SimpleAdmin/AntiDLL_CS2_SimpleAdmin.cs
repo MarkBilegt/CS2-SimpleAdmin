@@ -97,7 +97,7 @@ public sealed class AntiDLL_CS2_SimpleAdmin : BasePlugin, IPluginConfig<PluginCo
         if (player == null || !player.IsValid || player.IsBot || !_detections.Contains(player.Slot)) 
             return HookResult.Continue;
         
-        if (!_bannedPlayers.Contains(player.Slot) && player.Connected == PlayerConnectedState.PlayerConnected && player.TeamNum != 0)
+        if (!_bannedPlayers.Contains(player.Slot) && player.Connected == PlayerConnectedState.Connected && player.TeamNum != 0)
             PunishPlayer(player);
 
         return HookResult.Continue;
@@ -134,9 +134,15 @@ public sealed class AntiDLL_CS2_SimpleAdmin : BasePlugin, IPluginConfig<PluginCo
         }
         else
         {
+            if (player.UserId is not { } userId)
+            {
+                Logger.LogWarning("Could not execute AntiDLL fallback command because the player has no user ID");
+                return;
+            }
+
             Server.ExecuteCommand(Config.CommandToExecute.Replace("{steamid64}", player.SteamID.ToString())
                 .Replace("{duration}", Config.Duration.ToString()).Replace("{reason}", $"\"{Config.Reason}\"")
-                .Replace("{userid}", player.UserId.Value.ToString()));
+                .Replace("{userid}", userId.ToString()));
         }
     }
 

@@ -14,7 +14,7 @@ using MySqlConnector;
 
 namespace CS2_SimpleAdmin;
 
-[MinimumApiVersion(369)]
+[MinimumApiVersion(371)]
 public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdminConfig>
 {
     internal static CS2_SimpleAdmin Instance { get; private set; } = new();

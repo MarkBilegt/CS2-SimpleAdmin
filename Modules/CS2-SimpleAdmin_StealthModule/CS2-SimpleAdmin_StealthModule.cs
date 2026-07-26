@@ -23,7 +23,7 @@ public class CS2_SimpleAdmin_StealthModule: BasePlugin, IPluginConfig<PluginConf
     // private readonly HashSet<int> _admins = [];
     // private readonly HashSet<CCSPlayerController> _spectatedPlayers = [];
     
-    public PluginConfig Config { get; set; }
+    public PluginConfig Config { get; set; } = new();
 
     public override void Load(bool hotReload)
     {
@@ -216,4 +216,4 @@ public class CS2_SimpleAdmin_StealthModule: BasePlugin, IPluginConfig<PluginConf
     
     // private IEnumerable<CCSPlayerController> GetNonAdmins()
     //     => Players.Where(p => !_admins.Contains(p));
-} 
+}

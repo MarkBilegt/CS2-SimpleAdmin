@@ -23,7 +23,10 @@ public class CS2_SimpleAdminApi : ICS2_SimpleAdminApi
             : CS2_SimpleAdmin.PlayersInfo[player.SteamID];
     }
 
-    public string GetConnectionString() => CS2_SimpleAdmin.Instance.DbConnectionString;
+    public string GetConnectionString() =>
+        CS2_SimpleAdmin.Instance.Config.ExposeDatabaseConnectionStringToModules
+            ? CS2_SimpleAdmin.Instance.DbConnectionString
+            : string.Empty;
     public string GetServerAddress() => CS2_SimpleAdmin.IpAddress;
     public int? GetServerId() => CS2_SimpleAdmin.ServerId;
 

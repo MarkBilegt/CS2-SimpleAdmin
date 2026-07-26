@@ -188,6 +188,10 @@ public class MenuConfig
         new() { Name = "Show IP", Flag = "@css/showip" },
         new() { Name = "Cvar", Flag = "@css/cvar" },
         new() { Name = "Rcon", Flag = "@css/rcon" },
+        new() { Name = "MatchZy Config", Flag = "@css/config" },
+        new() { Name = "MatchZy Map", Flag = "@css/map" },
+        new() { Name = "MatchZy Practice", Flag = "@custom/prac" },
+        new() { Name = "Reserved Slot", Flag = "@css/reservation" },
         new() { Name = "Root (all flags)", Flag = "@css/root" }
     ];
 }
@@ -211,6 +215,26 @@ public class OtherSettings
 
     [JsonPropertyName("DisableDangerousCommands")]
     public bool DisableDangerousCommands { get; set; } = true;
+
+    [JsonPropertyName("BlockedRconCommands")]
+    public List<string> BlockedRconCommands { get; set; } =
+    [
+        "alias",
+        "crash",
+        "css_plugins",
+        "exec",
+        "exit",
+        "host_writeconfig",
+        "meta",
+        "plugin_load",
+        "plugin_unload",
+        "quit",
+        "rcon_password",
+        "restart",
+        "_restart",
+        "writeid",
+        "writeip"
+    ];
 
     [JsonPropertyName("MaxBanDuration")]
     public int MaxBanDuration { get; set; } = 60 * 24 * 7;
@@ -247,7 +271,7 @@ public class OtherSettings
 
 public class CS2_SimpleAdminConfig : BasePluginConfig
 {
-    [JsonPropertyName("ConfigVersion")] public override int Version { get; set; } = 25;
+    [JsonPropertyName("ConfigVersion")] public override int Version { get; set; } = 26;
 
     [JsonPropertyName("DatabaseConfig")] 
     public DatabaseConfig DatabaseConfig { get; set; } = new();
@@ -256,10 +280,13 @@ public class CS2_SimpleAdminConfig : BasePluginConfig
     public OtherSettings OtherSettings { get; set; } = new();
 
     [JsonPropertyName("EnableMetrics")]
-    public bool EnableMetrics { get; set; } = true;
+    public bool EnableMetrics { get; set; } = false;
 
     [JsonPropertyName("EnableUpdateCheck")]
     public bool EnableUpdateCheck { get; set; } = true;
+
+    [JsonPropertyName("ExposeDatabaseConnectionStringToModules")]
+    public bool ExposeDatabaseConnectionStringToModules { get; set; } = false;
 
     [JsonPropertyName("Timezone")]
     public string Timezone { get; set; } = "UTC";

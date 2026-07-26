@@ -51,7 +51,7 @@ The CS2-SimpleAdmin API provides a rich set of features for module developers:
 ### Prerequisites
 
 - C# knowledge (intermediate level)
-- .NET 8.0 SDK
+- .NET 10.0 SDK
 - CounterStrikeSharp understanding
 - CS2 dedicated server for testing
 
