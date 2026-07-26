@@ -53,7 +53,7 @@ The Fun Commands module extends CS2-SimpleAdmin with commands for god mode, nocl
 
 4. **Verify** the module loaded:
    - Check server console for load message
-   - Try `css_admin` and look for "Fun Commands" menu
+   - Try `css_adminmenu` and look for "Fun Commands" menu
 
 ---
 
@@ -483,7 +483,7 @@ The module automatically adds a "Fun Commands" category to the admin menu with t
 
 **Access menu:**
 ```bash
-css_admin  # Navigate to "Fun Commands"
+css_adminmenu  # Navigate to "Fun Commands"
 ```
 
 ---

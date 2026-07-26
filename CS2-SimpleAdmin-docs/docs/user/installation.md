@@ -12,7 +12,7 @@ Before installing CS2-SimpleAdmin, ensure you have the following dependencies in
 
 ### Required Dependencies
 
-1. **[CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp/)** (v1.0.340+)
+1. **[CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp/)** (v1.0.371+)
    - The core framework for CS2 server plugins
 
 2. **[AnyBaseLibCS2](https://github.com/NickFox007/AnyBaseLibCS2)**
@@ -100,7 +100,7 @@ If you want to build CS2-SimpleAdmin from source:
 
 ### Prerequisites
 
-- .NET 8.0 SDK
+- .NET 10.0 SDK
 - Git
 
 ### Build Steps
@@ -123,8 +123,8 @@ If you want to build CS2-SimpleAdmin from source:
 
 4. **Build output location:**
    ```
-   CS2-SimpleAdmin/bin/Release/net8.0/
-   CS2-SimpleAdminApi/bin/Release/net8.0/
+   CS2-SimpleAdmin/bin/Release/net10.0/
+   CS2-SimpleAdminApi/bin/Release/net10.0/
    ```
 
 5. **Copy to server:**
@@ -142,7 +142,7 @@ To verify the installation was successful:
 
 2. **Run an admin command** in-game:
    ```
-   css_admin
+   css_adminmenu
    ```
 
 3. **Check the logs** at:

@@ -1022,7 +1022,7 @@ public partial class CS2_SimpleAdmin
     [CommandHelper(minArgs: 1, usage: "<mapname>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnMapCommand(CCSPlayerController? caller, CommandInfo command)
     {
-        var map = command.GetCommandString.Split(" ")[1];
+        var map = command.GetArg(1);
         ChangeMap(caller, map, command);
     }
 
@@ -1036,6 +1036,12 @@ public partial class CS2_SimpleAdmin
     {
         var callerName = caller != null ? caller.PlayerName : _localizer?["sa_console"] ?? "Console";
         map = map.ToLower();
+
+        if (!IsSafeMapArgument(map))
+        {
+            command?.ReplyToCommand("Invalid map name.");
+            return;
+        }
 
         if (map.StartsWith("ws:"))
         {
@@ -1105,6 +1111,12 @@ public partial class CS2_SimpleAdmin
         map = map.ToLower();
         var callerName = caller != null ? caller.PlayerName : _localizer?["sa_console"] ?? "Console";
 
+        if (!IsSafeMapArgument(map))
+        {
+            command?.ReplyToCommand("Invalid workshop map name or ID.");
+            return;
+        }
+
         // Determine the workshop command
         var issuedCommand = long.TryParse(map, out var mapId)
             ? $"host_workshop_map {mapId}"
@@ -1147,7 +1159,9 @@ public partial class CS2_SimpleAdmin
             return;
         }
 
-        if (cvar.Name.Equals("sv_cheats") && !AdminManager.PlayerHasPermissions(new SteamID(caller!.SteamID), "@css/cheats"))
+        if (caller != null &&
+            cvar.Name.Equals("sv_cheats") &&
+            !AdminManager.PlayerHasPermissions(new SteamID(caller.SteamID), "@css/cheats"))
         {
             command.ReplyToCommand($"You don't have permissions to change \"{command.GetArg(1)}\".");
             return;
@@ -1155,6 +1169,12 @@ public partial class CS2_SimpleAdmin
 
         Helper.LogCommand(caller, command);
         var value = command.GetArg(2);
+        if (value.IndexOfAny([';', '\r', '\n']) >= 0)
+        {
+            command.ReplyToCommand("Cvar values cannot contain command separators.");
+            return;
+        }
+
         Server.ExecuteCommand($"{cvar.Name} {value}");
         command.ReplyToCommand($"{callerName} changed cvar {cvar.Name} to {value}.");
         Logger.LogInformation($"{callerName} changed cvar {cvar.Name} to {value}.");
@@ -1170,6 +1190,19 @@ public partial class CS2_SimpleAdmin
     public void OnRconCommand(CCSPlayerController? caller, CommandInfo command)
     {
         var callerName = caller == null ? _localizer?["sa_console"] ?? "Console" : caller.PlayerName;
+
+        if (Config.OtherSettings.DisableDangerousCommands &&
+            TryGetBlockedRconCommand(command.ArgString, out var blockedCommand))
+        {
+            command.ReplyToCommand(
+                $"Command \"{blockedCommand}\" is blocked by DisableDangerousCommands.");
+            Logger.LogWarning(
+                "{caller} attempted blocked RCON command: {command}",
+                callerName,
+                command.ArgString);
+            return;
+        }
+
         Helper.LogCommand(caller, command);
         Server.ExecuteCommand(command.ArgString);
         command.ReplyToCommand($"{callerName} executed command {command.ArgString}.");
@@ -1275,5 +1308,45 @@ public partial class CS2_SimpleAdmin
         var name = admin == null ? _localizer?["sa_console"] ?? "Console" : admin.PlayerName;
         Server.PrintToChatAll($"[SA] {name}: Restarting game...");
         Server.ExecuteCommand("mp_restartgame 2");
+    }
+
+    private static bool IsSafeMapArgument(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || value.Length > 128)
+            return false;
+
+        return value.All(character =>
+            char.IsLetterOrDigit(character) ||
+            character is '_' or '-' or '.' or '/' or ':');
+    }
+
+    private bool TryGetBlockedRconCommand(string commandString, out string blockedCommand)
+    {
+        var blockedPrefixes = Config.OtherSettings.BlockedRconCommands
+            .Where(prefix => !string.IsNullOrWhiteSpace(prefix))
+            .Select(prefix => prefix.Trim())
+            .ToArray();
+
+        var commandSegments = commandString
+            .Replace('\r', ';')
+            .Replace('\n', ';')
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        foreach (var segment in commandSegments)
+        {
+            var normalizedSegment = segment.TrimStart('+').Trim();
+            foreach (var prefix in blockedPrefixes)
+            {
+                if (normalizedSegment.Equals(prefix, StringComparison.OrdinalIgnoreCase) ||
+                    normalizedSegment.StartsWith(prefix + " ", StringComparison.OrdinalIgnoreCase))
+                {
+                    blockedCommand = prefix;
+                    return true;
+                }
+            }
+        }
+
+        blockedCommand = string.Empty;
+        return false;
     }
 }

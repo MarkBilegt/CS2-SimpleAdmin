@@ -23,7 +23,7 @@ public class ServerManager
     }
     
     /// <summary>
-    /// Initiates the asynchronous process to load server data such as IP address, port, hostname, and RCON password.
+    /// Initiates the asynchronous process to load server data such as IP address, port, and hostname.
     /// Handles retry attempts if IP address is not immediately available.
     /// Updates or inserts the server record in the database accordingly.
     /// After loading, triggers admin reload and cache initialization.
@@ -67,11 +67,8 @@ public class ServerManager
             // Optimization: Cache remaining ConVar lookups
             var hostportConVar = ConVar.Find("hostport");
             var hostnameConVar = ConVar.Find("hostname");
-            var rconPasswordConVar = ConVar.Find("rcon_password");
-
             var address = $"{ipAddress}:{hostportConVar?.GetPrimitiveValue<int>()}";
             var hostname = hostnameConVar?.StringValue ?? CS2_SimpleAdmin._localizer?["sa_unknown"] ?? "Unknown";
-            var rconPassword = rconPasswordConVar?.StringValue ?? "";
             CS2_SimpleAdmin.IpAddress = address;
             
             Task.Run(async () =>
@@ -86,8 +83,8 @@ public class ServerManager
                     if (serverId == null)
                     {
                         await connection.ExecuteAsync(
-                            "INSERT INTO sa_servers (address, hostname, rcon_password) VALUES (@address, @hostname, @rconPassword)",
-                            new { address, hostname, rconPassword });
+                            "INSERT INTO sa_servers (address, hostname, rcon_password) VALUES (@address, @hostname, NULL)",
+                            new { address, hostname });
 
                         serverId = await connection.ExecuteScalarAsync<int>(
                             "SELECT id FROM sa_servers WHERE address = @address",
@@ -96,8 +93,8 @@ public class ServerManager
                     else
                     {
                         await connection.ExecuteAsync(
-                            "UPDATE sa_servers SET hostname = @hostname, rcon_password = @rconPassword WHERE address = @address",
-                            new { address, hostname, rconPassword });
+                            "UPDATE sa_servers SET hostname = @hostname, rcon_password = NULL WHERE address = @address",
+                            new { address, hostname });
                     }
 
                     CS2_SimpleAdmin.ServerId = serverId;
@@ -117,7 +114,8 @@ CS2_SimpleAdmin.ServerLoaded = true;
 
                 if (CS2_SimpleAdmin.Instance.Config.EnableMetrics)
                 {
-                    var queryString = $"?address={address}&hostname={hostname}";
+                    var queryString =
+                        $"?address={Uri.EscapeDataString(address)}&hostname={Uri.EscapeDataString(hostname)}";
                     var client = CS2_SimpleAdmin.HttpClient;
 
                     try

@@ -20,7 +20,9 @@ public interface ICS2_SimpleAdminApi
     public PlayerInfo GetPlayerInfo(CCSPlayerController player);
     
     /// <summary>
-    /// Returns the database connection string used by the plugin.
+    /// Returns the database connection string used by the plugin when
+    /// ExposeDatabaseConnectionStringToModules is explicitly enabled.
+    /// Returns an empty string by default.
     /// </summary>
     public string GetConnectionString();
     

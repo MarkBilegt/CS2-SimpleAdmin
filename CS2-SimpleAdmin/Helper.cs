@@ -874,16 +874,85 @@ internal static class Helper
         var json = File.ReadAllText(CfgPath);
         var node = JsonNode.Parse(json);
 
-        if (node != null)
+        if (node is JsonObject configObject)
         {
-            node["Version"] = newCfgVersion;
-            var updatedJsonContent = node.ToJsonString(new JsonSerializerOptions
+            if (config.Version < 26)
+            {
+                configObject.TryAdd(
+                    "ExposeDatabaseConnectionStringToModules",
+                    false);
+                AddDefaultBlockedRconCommands(configObject);
+                AddMissingAdminFlags(configObject);
+            }
+
+            configObject["ConfigVersion"] = newCfgVersion;
+            configObject.Remove("Version");
+            var updatedJsonContent = configObject.ToJsonString(new JsonSerializerOptions
             {
                 WriteIndented = true,
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             });
             
             File.WriteAllText(CfgPath, updatedJsonContent);
+        }
+    }
+
+    private static void AddDefaultBlockedRconCommands(JsonObject configObject)
+    {
+        if (configObject["OtherSettings"] is not JsonObject otherSettings)
+        {
+            otherSettings = new JsonObject();
+            configObject["OtherSettings"] = otherSettings;
+        }
+
+        if (otherSettings.ContainsKey("BlockedRconCommands"))
+            return;
+
+        var blockedCommands = new JsonArray();
+        foreach (var command in new OtherSettings().BlockedRconCommands)
+            blockedCommands.Add(command);
+
+        otherSettings["BlockedRconCommands"] = blockedCommands;
+    }
+
+    private static void AddMissingAdminFlags(JsonObject configObject)
+    {
+        if (configObject["MenuConfig"] is not JsonObject menuConfig)
+        {
+            menuConfig = new JsonObject();
+            configObject["MenuConfig"] = menuConfig;
+        }
+
+        if (menuConfig["AdminFlags"] is not JsonArray adminFlags)
+        {
+            adminFlags = [];
+            menuConfig["AdminFlags"] = adminFlags;
+        }
+
+        var existingFlags = adminFlags
+            .OfType<JsonObject>()
+            .Select(item => item["flag"]?.GetValue<string>())
+            .Where(flag => !string.IsNullOrWhiteSpace(flag))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        (string Name, string Flag)[] requiredFlags =
+        [
+            ("MatchZy Config", "@css/config"),
+            ("MatchZy Map", "@css/map"),
+            ("MatchZy Practice", "@custom/prac"),
+            ("Reserved Slot", "@css/reservation")
+        ];
+
+        foreach (var (name, flag) in requiredFlags)
+        {
+            if (!existingFlags.Add(flag))
+                continue;
+
+            adminFlags.Add(new JsonObject
+            {
+                ["name"] = name,
+                ["flag"] = flag
+            });
         }
     }
 

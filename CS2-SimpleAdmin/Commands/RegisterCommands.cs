@@ -9,6 +9,8 @@ namespace CS2_SimpleAdmin;
 
 public static class RegisterCommands
 {
+    private const int CommandsConfigVersion = 2;
+
     internal static readonly Dictionary<string, IList<CommandDefinition>> _commandDefinitions =
         new(StringComparer.InvariantCultureIgnoreCase);
     
@@ -102,6 +104,7 @@ public static class RegisterCommands
     {
         var commands = new CommandsConfig
         {
+            Version = CommandsConfigVersion,
             Commands = new Dictionary<string, Command>
             {
                 { "css_ban", new Command { Aliases = ["css_ban"] } },
@@ -117,7 +120,7 @@ public static class RegisterCommands
                 { "css_csay", new Command { Aliases = ["css_csay"] } },
                 { "css_hsay", new Command { Aliases = ["css_hsay"] } },
                 { "css_penalties", new Command { Aliases = ["css_penalties", "css_mypenalties", "css_comms"] } },
-                { "css_admin", new Command { Aliases = ["css_admin"] } },
+                { "css_admin", new Command { Aliases = ["css_adminmenu"] } },
                 { "css_adminhelp", new Command { Aliases = ["css_adminhelp"] } },
                 { "css_addadmin", new Command { Aliases = ["css_addadmin"] } },
                 { "css_deladmin", new Command { Aliases = ["css_deladmin"] } },
@@ -136,7 +139,7 @@ public static class RegisterCommands
                 { "css_wsmap", new Command { Aliases = ["css_wsmap", "css_changewsmap", "css_workshop"] } },
                 { "css_cvar", new Command { Aliases = ["css_cvar"] } },
                 { "css_rcon", new Command { Aliases = ["css_rcon"] } },
-                { "css_rr", new Command { Aliases = ["css_rr", "css_rg", "css_restart", "css_restartgame"] } },
+                { "css_rr", new Command { Aliases = ["css_sarestart"] } },
                 { "css_gag", new Command { Aliases = ["css_gag"] } },
                 { "css_addgag", new Command { Aliases = ["css_addgag"] } },
                 { "css_ungag", new Command { Aliases = ["css_ungag"] } },
@@ -160,14 +163,7 @@ public static class RegisterCommands
             }
         };
         
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
-        var json = JsonSerializer.Serialize(commands, options);
-        File.WriteAllText(CommandsPath, json);
+        SaveConfig(commands);
     }
 
     /// <summary>
@@ -183,6 +179,13 @@ public static class RegisterCommands
 
         if (commandsConfig?.Commands != null)
         {
+            if (MigrateConfig(commandsConfig))
+            {
+                SaveConfig(commandsConfig);
+                CS2_SimpleAdmin._logger?.LogInformation(
+                    "Migrated Commands.json to version {version}", CommandsConfigVersion);
+            }
+
             foreach (var command in commandsConfig.Commands)
             {
                 if (command.Value.Aliases == null) continue;
@@ -215,7 +218,8 @@ public static class RegisterCommands
     /// </summary>
     private class CommandsConfig
     {
-        public Dictionary<string, Command>? Commands { get; init; }
+        public int Version { get; set; }
+        public Dictionary<string, Command>? Commands { get; set; }
     }
     
     /// <summary>
@@ -223,7 +227,7 @@ public static class RegisterCommands
     /// </summary>
     private class Command
     {
-        public string[]? Aliases { get; init; }
+        public string[]? Aliases { get; set; }
     }
     
     /// <summary>
@@ -233,5 +237,58 @@ public static class RegisterCommands
     {
         public string CommandKey { get; } = commandKey;
         public CommandInfo.CommandCallback Callback { get; } = callback;
+    }
+
+    private static bool MigrateConfig(CommandsConfig config)
+    {
+        if (config.Version >= CommandsConfigVersion || config.Commands == null)
+            return false;
+
+        ReplaceAliases(
+            config.Commands,
+            "css_admin",
+            ["css_admin"],
+            "css_adminmenu");
+
+        ReplaceAliases(
+            config.Commands,
+            "css_rr",
+            ["css_rr", "css_rg", "css_restart", "css_restartgame"],
+            "css_sarestart");
+
+        config.Version = CommandsConfigVersion;
+        return true;
+    }
+
+    private static void ReplaceAliases(
+        Dictionary<string, Command> commands,
+        string commandName,
+        IEnumerable<string> aliasesToRemove,
+        string replacementAlias)
+    {
+        if (!commands.TryGetValue(commandName, out var command))
+            return;
+
+        var removedAliases = aliasesToRemove.ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+        var aliases = (command.Aliases ?? [])
+            .Where(alias => !removedAliases.Contains(alias))
+            .ToList();
+
+        if (!aliases.Contains(replacementAlias, StringComparer.InvariantCultureIgnoreCase))
+            aliases.Add(replacementAlias);
+
+        command.Aliases = aliases.ToArray();
+    }
+
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Configuration types are declared in this assembly.")]
+    private static void SaveConfig(CommandsConfig config)
+    {
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
+        File.WriteAllText(CommandsPath, JsonSerializer.Serialize(config, options));
     }
 }

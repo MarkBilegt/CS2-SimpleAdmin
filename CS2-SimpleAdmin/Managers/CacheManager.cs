@@ -294,7 +294,7 @@ internal class CacheManager: IDisposable
                             .GroupBy(x => x.Address)
                             .Select(g =>
                             {
-                                var latest = g.MaxBy(x => x.Used_at);
+                                var latest = g.MaxBy(x => x.Used_at)!;
                                 return new IpRecord(
                                     g.Key,
                                     latest.Used_at,

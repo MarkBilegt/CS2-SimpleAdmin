@@ -14,7 +14,7 @@ using MySqlConnector;
 
 namespace CS2_SimpleAdmin;
 
-[MinimumApiVersion(369)]
+[MinimumApiVersion(371)]
 public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdminConfig>
 {
     internal static CS2_SimpleAdmin Instance { get; private set; } = new();
@@ -22,7 +22,7 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
     public override string ModuleName => "CS2-SimpleAdmin" + (Helper.IsDebugBuild ? " (DEBUG)" : " (RELEASE)");
     public override string ModuleDescription => "Simple admin plugin for Counter-Strike 2 :)";
     public override string ModuleAuthor => "daffyy";
-    public override string ModuleVersion => "1.8.2b";
+    public override string ModuleVersion => "1.8.3-bethechamp.1";
     
     public override void Load(bool hotReload)
     {

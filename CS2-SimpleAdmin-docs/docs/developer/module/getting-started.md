@@ -11,7 +11,7 @@ Step-by-step guide to creating your first CS2-SimpleAdmin module.
 Before you begin:
 
 - C# knowledge (intermediate level)
-- .NET 8.0 SDK installed
+- .NET 10.0 SDK installed
 - Visual Studio 2022 or VS Code
 - Basic understanding of CounterStrikeSharp
 - CS2 dedicated server for testing
@@ -23,14 +23,14 @@ Before you begin:
 ### Using .NET CLI
 
 ```bash
-dotnet new classlib -n MyModule -f net8.0
+dotnet new classlib -n MyModule -f net10.0
 cd MyModule
 ```
 
 ### Using Visual Studio
 
 1. File → New → Project
-2. Select "Class Library (.NET 8.0)"
+2. Select "Class Library (.NET 10.0)"
 3. Name: `MyModule`
 4. Click Create
 
@@ -43,7 +43,7 @@ Edit `MyModule.csproj`:
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -232,7 +232,7 @@ css_plugins reload
 ## Step 6: Test
 
 1. Join your server
-2. Open admin menu: `css_admin`
+2. Open admin menu: `css_adminmenu`
 3. Look for "My Module" category
 4. Test command: `css_mycommand @me`
 

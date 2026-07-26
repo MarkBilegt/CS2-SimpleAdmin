@@ -21,14 +21,14 @@ The **[Fun Commands Module](https://github.com/daffyyyy/CS2-SimpleAdmin/tree/mai
 ### Knowledge Required
 
 - C# programming (intermediate level)
-- .NET 8.0
+- .NET 10.0
 - CounterStrikeSharp basics
 - Understanding of CS2-SimpleAdmin structure
 
 ### Tools Needed
 
 - Visual Studio 2022 or VS Code
-- .NET 8.0 SDK
+- .NET 10.0 SDK
 - CS2 server for testing
 
 ---
@@ -38,7 +38,7 @@ The **[Fun Commands Module](https://github.com/daffyyyy/CS2-SimpleAdmin/tree/mai
 ### 1. Create Project
 
 ```bash
-dotnet new classlib -n YourModuleName -f net8.0
+dotnet new classlib -n YourModuleName -f net10.0
 cd YourModuleName
 ```
 
@@ -49,7 +49,7 @@ Edit your `.csproj` file:
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
