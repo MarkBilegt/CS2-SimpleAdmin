@@ -1114,9 +1114,6 @@ public static class Time
 {
     public static DateTime ActualDateTime()
     {
-        if (CS2_SimpleAdmin.Instance.Config.DatabaseConfig.DatabaseType.ToLower().Equals("sqlite"))
-            return DateTime.UtcNow;
-        
         string timezoneId = CS2_SimpleAdmin.Instance.Config.Timezone;
         DateTime utcNow = DateTime.UtcNow;
 

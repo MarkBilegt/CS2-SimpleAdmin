@@ -11,6 +11,7 @@ using CS2_SimpleAdmin.Menus;
 using CS2_SimpleAdminApi;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+using System.Text.Json;
 
 namespace CS2_SimpleAdmin;
 
@@ -22,7 +23,7 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
     public override string ModuleName => "CS2-SimpleAdmin" + (Helper.IsDebugBuild ? " (DEBUG)" : " (RELEASE)");
     public override string ModuleDescription => "Simple admin plugin for Counter-Strike 2 :)";
     public override string ModuleAuthor => "daffyy";
-    public override string ModuleVersion => "1.8.3-bethechamp.1";
+    public override string ModuleVersion => "1.8.3-bethechamp.2";
     
     public override void Load(bool hotReload)
     {
@@ -160,40 +161,34 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
 
         Instance = this;
         
-    if (Config.DatabaseConfig.DatabaseType.Contains("mysql", StringComparison.CurrentCultureIgnoreCase))
+    if (!Config.DatabaseConfig.DatabaseType.Equals("mysql", StringComparison.OrdinalIgnoreCase))
     {
-        if (string.IsNullOrWhiteSpace(config.DatabaseConfig.DatabaseHost) ||
-            string.IsNullOrWhiteSpace(config.DatabaseConfig.DatabaseName) ||
-            string.IsNullOrWhiteSpace(config.DatabaseConfig.DatabaseUser))
-        {
-            throw new Exception("[CS2-SimpleAdmin] You need to setup MySQL credentials in config!");
-        }
-
-        var builder = new MySqlConnectionStringBuilder()
-        {
-            Server = config.DatabaseConfig.DatabaseHost,
-            Database = config.DatabaseConfig.DatabaseName,
-            UserID = config.DatabaseConfig.DatabaseUser,
-            Password = config.DatabaseConfig.DatabasePassword,
-            Port = (uint)config.DatabaseConfig.DatabasePort,
-            SslMode = Enum.TryParse(config.DatabaseConfig.DatabaseSSlMode, true, out MySqlSslMode sslMode)
-                        ? sslMode
-                        : MySqlSslMode.Preferred,
-            Pooling = true,
-        };
-
-        DbConnectionString = builder.ConnectionString;
-        DatabaseProvider = new MySqlDatabaseProvider(DbConnectionString);
+        throw new Exception("[CS2-SimpleAdmin] This deployment requires DatabaseType=MySQL.");
     }
-    else 
+
+    ApplySharedDatabaseConfig(config.DatabaseConfig);
+    if (string.IsNullOrWhiteSpace(config.DatabaseConfig.DatabaseHost) ||
+        string.IsNullOrWhiteSpace(config.DatabaseConfig.DatabaseName) ||
+        string.IsNullOrWhiteSpace(config.DatabaseConfig.DatabaseUser))
     {
-        if (string.IsNullOrWhiteSpace(config.DatabaseConfig.SqliteFilePath))
-        {
-            throw new Exception("[CS2-SimpleAdmin] You need to specify SQLite file path in config!");
-        }
-        
-        DatabaseProvider = new SqliteDatabaseProvider(ModuleDirectory + "/" + config.DatabaseConfig.SqliteFilePath);
+        throw new Exception("[CS2-SimpleAdmin] You need to setup MySQL credentials in the shared database config!");
     }
+
+    var builder = new MySqlConnectionStringBuilder()
+    {
+        Server = config.DatabaseConfig.DatabaseHost,
+        Database = config.DatabaseConfig.DatabaseName,
+        UserID = config.DatabaseConfig.DatabaseUser,
+        Password = config.DatabaseConfig.DatabasePassword,
+        Port = (uint)config.DatabaseConfig.DatabasePort,
+        SslMode = Enum.TryParse(config.DatabaseConfig.DatabaseSSlMode, true, out MySqlSslMode sslMode)
+                    ? sslMode
+                    : MySqlSslMode.Preferred,
+        Pooling = true,
+    };
+
+    DbConnectionString = builder.ConnectionString;
+    DatabaseProvider = new MySqlDatabaseProvider(DbConnectionString);
 
     var (success, exception) = Task.Run(() => DatabaseProvider.CheckConnectionAsync()).GetAwaiter().GetResult();
     if (!success)
@@ -224,6 +219,45 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
         BanManager = new BanManager(DatabaseProvider);
         MuteManager = new MuteManager(DatabaseProvider);
         WarnManager = new WarnManager(DatabaseProvider);
+    }
+
+    private sealed class SharedDatabaseConfig
+    {
+        public string DatabaseType { get; set; } = string.Empty;
+        public string MySqlHost { get; set; } = string.Empty;
+        public string MySqlDatabase { get; set; } = string.Empty;
+        public string MySqlUsername { get; set; } = string.Empty;
+        public string MySqlPassword { get; set; } = string.Empty;
+        public int? MySqlPort { get; set; }
+    }
+
+    private static void ApplySharedDatabaseConfig(DatabaseConfig target)
+    {
+        string configuredPath = string.IsNullOrWhiteSpace(target.SharedDatabaseConfigPath)
+            ? "csgo/cfg/MatchZy/database.json"
+            : target.SharedDatabaseConfigPath.Trim();
+        string path = Path.IsPathRooted(configuredPath)
+            ? configuredPath
+            : Path.Combine(Server.GameDirectory, configuredPath.Replace('/', Path.DirectorySeparatorChar));
+        if (!File.Exists(path))
+        {
+            throw new Exception($"[CS2-SimpleAdmin] Shared MySQL config was not found at '{path}'.");
+        }
+
+        SharedDatabaseConfig shared = JsonSerializer.Deserialize<SharedDatabaseConfig>(
+            File.ReadAllText(path),
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            ?? throw new Exception("[CS2-SimpleAdmin] Shared MySQL config is empty.");
+        if (!string.Equals(shared.DatabaseType, "MySQL", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new Exception("[CS2-SimpleAdmin] Shared database requires DatabaseType=MySQL.");
+        }
+
+        if (string.IsNullOrWhiteSpace(target.DatabaseHost)) target.DatabaseHost = shared.MySqlHost;
+        if (string.IsNullOrWhiteSpace(target.DatabaseName)) target.DatabaseName = shared.MySqlDatabase;
+        if (string.IsNullOrWhiteSpace(target.DatabaseUser)) target.DatabaseUser = shared.MySqlUsername;
+        if (string.IsNullOrWhiteSpace(target.DatabasePassword)) target.DatabasePassword = shared.MySqlPassword;
+        if (shared.MySqlPort is > 0 and <= 65535) target.DatabasePort = shared.MySqlPort.Value;
     }
 
     internal static TargetResult? GetTarget(CommandInfo command, int argument = 1)
