@@ -19,25 +19,12 @@ public class Migration(string migrationsPath)
         await using var connection = await CS2_SimpleAdmin.DatabaseProvider.CreateConnectionAsync();
         await using (var cmd = connection.CreateCommand())
         {
-            if (migrationsPath.Contains("sqlite", StringComparison.CurrentCultureIgnoreCase))
-            {
-                cmd.CommandText = """
-                                                  CREATE TABLE IF NOT EXISTS sa_migrations (
-                                                      id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                                      version TEXT NOT NULL
-                                                  );
-                                              
-                                  """;
-            }
-            else
-            {
-                cmd.CommandText = """
-                                      CREATE TABLE IF NOT EXISTS sa_migrations (
-                                          id INT PRIMARY KEY AUTO_INCREMENT,
-                                          version VARCHAR(128) NOT NULL
-                                      );
-                                  """;
-            }
+            cmd.CommandText = """
+                                  CREATE TABLE IF NOT EXISTS sa_migrations (
+                                      id INT PRIMARY KEY AUTO_INCREMENT,
+                                      version VARCHAR(128) NOT NULL
+                                  );
+                              """;
 
             await cmd.ExecuteNonQueryAsync();
         }

@@ -271,7 +271,7 @@ public class OtherSettings
 
 public class CS2_SimpleAdminConfig : BasePluginConfig
 {
-    [JsonPropertyName("ConfigVersion")] public override int Version { get; set; } = 26;
+    [JsonPropertyName("ConfigVersion")] public override int Version { get; set; } = 27;
 
     [JsonPropertyName("DatabaseConfig")] 
     public DatabaseConfig DatabaseConfig { get; set; } = new();
@@ -321,10 +321,10 @@ public class CS2_SimpleAdminConfig : BasePluginConfig
 public class DatabaseConfig
 {
     [JsonPropertyName("DatabaseType")]
-    public string DatabaseType { get; set; } = "SQLite";
-    
-    [JsonPropertyName("SqliteFilePath")]
-    public string SqliteFilePath { get; set; } = "cs2-simpleadmin.sqlite";
+    public string DatabaseType { get; set; } = "MySQL";
+
+    [JsonPropertyName("SharedDatabaseConfigPath")]
+    public string SharedDatabaseConfigPath { get; set; } = "csgo/cfg/MatchZy/database.json";
 
     [JsonPropertyName("DatabaseHost")]
     public string DatabaseHost { get; set; } = "";
@@ -347,6 +347,5 @@ public class DatabaseConfig
 
 public enum DatabaseType
 {
-    MySQL,
-    SQLite
+    MySQL
 }
