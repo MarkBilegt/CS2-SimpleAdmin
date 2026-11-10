@@ -9,8 +9,8 @@ and practice workflows.
 
 - .NET 10
 - CounterStrikeSharp 1.0.371 or newer
-- CS2-SimpleAdmin 1.8.3-bethechamp.1
-- BETHECHAMP Match Control 0.8.19-bethechamp.1
+- CS2-SimpleAdmin 1.8.3-reign.1
+- REIGN Match Control 0.8.19-reign.1
 - MenuManagerCore, PlayerSettings, AnyBaseLib, and their shared API assemblies
 
 Use MySQL with a dedicated least-privilege database account for production or
@@ -20,7 +20,7 @@ multi-server installations. Use SQLite only for a single server.
 
 | Command | Owner | Purpose |
 | --- | --- | --- |
-| `!admin <reason>` | BETHECHAMP | Private player-to-staff call |
+| `!admin <reason>` | REIGN | Private player-to-staff call |
 | `!adminmenu` | SimpleAdmin | Administration menu |
 | `!last` | SimpleAdmin | Recently disconnected players |
 | `!lastnade` | MatchZy | Teleport to the last practice grenade |
@@ -83,7 +83,7 @@ SimpleAdmin migrates `Commands.json` to version 2:
 - `css_last` remains assigned to SimpleAdmin
 
 MatchZy remote website moderation commands are dispatched to SimpleAdmin.
-BETHECHAMP `MUTE` maps to a SimpleAdmin text gag, while BETHECHAMP `GAG` maps
+REIGN `MUTE` maps to a SimpleAdmin text gag, while REIGN `GAG` maps
 to a SimpleAdmin voice mute. A website receipt confirms that the server
 dispatched the SimpleAdmin command; it is not a second database transaction
 confirmation, so monitor both plugin logs for rejected commands.
