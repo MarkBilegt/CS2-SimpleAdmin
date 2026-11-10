@@ -1294,7 +1294,7 @@ public partial class CS2_SimpleAdmin
     [RequiresPermissions("@css/cvar")]
     public void OnCvarCommand(CCSPlayerController? caller, CommandInfo command)
     {
-        var cvar = ConVar.Find(command.GetArg(1));
+        var cvar = ConVar<string>.Find(command.GetArg(1)); // only the name is used, so the type argument does not matter
         var callerName = caller == null ? _localizer?["sa_console"] ?? "Console" : caller.PlayerName;
 
         if (cvar == null)

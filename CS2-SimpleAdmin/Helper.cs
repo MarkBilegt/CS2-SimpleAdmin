@@ -365,7 +365,7 @@ internal static class Helper
             return;
 
         var playerName = caller?.PlayerName ?? CS2_SimpleAdmin._localizer["sa_console"];
-        var hostname = ConVar.Find("hostname")?.StringValue ?? CS2_SimpleAdmin._localizer["sa_unknown"];
+        var hostname = ConVar<string>.Find("hostname")?.Value ?? CS2_SimpleAdmin._localizer["sa_unknown"];
 
         CS2_SimpleAdmin.Instance.Logger.LogInformation($"{CS2_SimpleAdmin._localizer[
             "sa_discord_log_command",
@@ -380,9 +380,9 @@ internal static class Helper
             return;
 
         var playerName = caller?.PlayerName ?? CS2_SimpleAdmin._localizer["sa_console"];
-        var hostnameCvar = ConVar.Find("hostname");
+        var hostnameCvar = ConVar<string>.Find("hostname");
 
-        var hostname = hostnameCvar?.StringValue ?? CS2_SimpleAdmin._localizer["sa_unknown"];
+        var hostname = hostnameCvar?.Value ?? CS2_SimpleAdmin._localizer["sa_unknown"];
 
         CS2_SimpleAdmin.Instance.Logger.LogInformation($"{CS2_SimpleAdmin._localizer["sa_discord_log_command",
             playerName, command]}".Replace("HOSTNAME", hostname).Replace("**", ""));
@@ -392,8 +392,8 @@ internal static class Helper
 
     /*public static IEnumerable<Embed> GenerateEmbedsDiscord(string title, string description, string thumbnailUrl, Color color, string[] fieldNames, string[] fieldValues, bool[] inlineFlags)
 	{
-		var hostname = ConVar.Find("hostname")?.StringValue ?? CS2_SimpleAdmin._localizer?["sa_unknown"] ?? "Unknown";
-		var address = $"{ConVar.Find("ip")?.StringValue}:{ConVar.Find("hostport")!.GetPrimitiveValue<int>()}";
+		var hostname = ConVar<string>.Find("hostname")?.Value ?? CS2_SimpleAdmin._localizer?["sa_unknown"] ?? "Unknown";
+		var address = $"{ConVar<string>.Find("ip")?.Value}:{ConVar<int>.Find("hostport")!.Value}";
 
 		description = description.Replace("{hostname}", hostname);
 		description = description.Replace("{address}", address);
@@ -680,7 +680,7 @@ internal static class Helper
         ];
         
         bool[] inlineFlags = [true, true, true, false, false];
-        var hostname = ConVar.Find("hostname")?.StringValue ?? localizer["sa_unknown"];
+        var hostname = ConVar<string>.Find("hostname")?.Value ?? localizer["sa_unknown"];
         var colorValue = penaltySetting.FirstOrDefault(s => s.Name.Equals("Color"))?.Value;
         var colorHex = string.IsNullOrWhiteSpace(colorValue) ? "#FFFFFF" : colorValue.Trim();
 
@@ -774,7 +774,7 @@ internal static class Helper
         ];
         
         bool[] inlineFlags = [true, true, true, false, false];
-        var hostname = ConVar.Find("hostname")?.StringValue ?? localizer["sa_unknown"];
+        var hostname = ConVar<string>.Find("hostname")?.Value ?? localizer["sa_unknown"];
         var colorValue = penaltySetting.FirstOrDefault(s => s.Name.Equals("Color"))?.Value;
         var colorHex = string.IsNullOrWhiteSpace(colorValue) ? "#FFFFFF" : colorValue.Trim();
 
@@ -821,8 +821,8 @@ internal static class Helper
     
     private static string GenerateMessageDiscord(string message)
     {
-        var hostname = ConVar.Find("hostname")?.StringValue ?? CS2_SimpleAdmin._localizer?["sa_unknown"] ?? "Unknown";
-        var address = $"{ConVar.Find("ip")?.StringValue}:{ConVar.Find("hostport")!.GetPrimitiveValue<int>()}";
+        var hostname = ConVar<string>.Find("hostname")?.Value ?? CS2_SimpleAdmin._localizer?["sa_unknown"] ?? "Unknown";
+        var address = $"{ConVar<string>.Find("ip")?.Value}:{ConVar<int>.Find("hostport")!.Value}";
 
         message = message.Replace("HOSTNAME", hostname);
         message = message.Replace("ADDRESS", address);

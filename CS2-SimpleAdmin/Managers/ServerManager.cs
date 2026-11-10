@@ -15,8 +15,8 @@ public class ServerManager
     /// </summary>
     public static void CheckHibernationStatus()
     {
-        var convar = ConVar.Find("sv_hibernate_when_empty");
-        if (convar == null || !convar.GetPrimitiveValue<bool>())
+        var convar = ConVar<bool>.Find("sv_hibernate_when_empty");
+        if (convar == null || !convar.Value)
             return;
         
         CS2_SimpleAdmin._logger?.LogError("Detected setting \"sv_hibernate_when_empty true\", set false to make plugin work properly");
@@ -49,8 +49,8 @@ public class ServerManager
             }
 
             // Optimization: Cache ConVar lookups
-            var ipConVar = ConVar.Find("ip");
-            var ipAddress = ipConVar?.StringValue;
+            var ipConVar = ConVar<string>.Find("ip");
+            var ipAddress = ipConVar?.Value;
 
             // Use Helper IP if ConVar IP is invalid
             if (string.IsNullOrEmpty(ipAddress) || ipAddress.StartsWith("0.0.0"))
@@ -67,10 +67,10 @@ public class ServerManager
             }
 
             // Optimization: Cache remaining ConVar lookups
-            var hostportConVar = ConVar.Find("hostport");
-            var hostnameConVar = ConVar.Find("hostname");
-            var address = $"{ipAddress}:{hostportConVar?.GetPrimitiveValue<int>()}";
-            var hostname = hostnameConVar?.StringValue ?? CS2_SimpleAdmin._localizer?["sa_unknown"] ?? "Unknown";
+            var hostportConVar = ConVar<int>.Find("hostport");
+            var hostnameConVar = ConVar<string>.Find("hostname");
+            var address = $"{ipAddress}:{hostportConVar?.Value}";
+            var hostname = hostnameConVar?.Value ?? CS2_SimpleAdmin._localizer?["sa_unknown"] ?? "Unknown";
             CS2_SimpleAdmin.IpAddress = address;
             
             Task.Run(async () =>
