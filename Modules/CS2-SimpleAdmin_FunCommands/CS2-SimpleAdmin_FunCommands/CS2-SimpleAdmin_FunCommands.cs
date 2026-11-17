@@ -371,7 +371,7 @@ public partial class CS2_SimpleAdmin_FunCommands : BasePlugin, IPluginConfig<Con
             // - We pass translation KEYS and the module's Localizer to the API
             // - SimpleAdmin will translate menu names per-player based on their css_lang
             // - Each player sees menus in their own language!
-            _sharedApi.RegisterMenuCategory("fun", "fun_category_name", "@css/generic", Localizer!);
+            _sharedApi.RegisterMenuCategory("fun", "fun_category_name", "@css/vip", Localizer!);
 
             // Register menus with command names for permission override support
             // Server admins can override default permissions via CounterStrikeSharp admin system
